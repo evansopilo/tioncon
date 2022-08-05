@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/evansopilo/tioncon/database"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -16,6 +19,10 @@ type application struct {
 }
 
 func main() {
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -35,5 +42,5 @@ func main() {
 		log.Fatal(err)
 	}
 	app := &application{Things: database.NewThing(client.Database("tionicdb").Collection("things"))}
-	app.Router().Listen(":8081")
+	app.Router().Listen(fmt.Sprintf(":%v", os.Getenv("server_port")))
 }
