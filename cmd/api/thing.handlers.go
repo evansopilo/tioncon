@@ -13,6 +13,7 @@ import (
 func (app *application) InsertThing(ctx *fiber.Ctx) error {
 	var thing models.IThing = models.NewThing()
 	if err := ctx.BodyParser(&thing); err != nil {
+		app.Logger.Error(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 	thing.SetID(uuid.New().String())
@@ -25,6 +26,7 @@ func (app *application) InsertThing(ctx *fiber.Ctx) error {
 func (app *application) ReadThing(ctx *fiber.Ctx) error {
 	thing, err := app.Things.Read(ctx.Params("id"))
 	if err != nil {
+		app.Logger.Error(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"status": "success", "data": thing})
@@ -41,7 +43,7 @@ func (app *application) FetchThing(ctx *fiber.Ctx) error {
 
 	page, err := strconv.Atoi(ctx.Query("page", "1"))
 	if err != nil {
-		log.Println(err)
+		app.Logger.Error(err)
 	}
 
 	limit, err := strconv.Atoi(ctx.Query("limit", "15"))
@@ -58,6 +60,7 @@ func (app *application) FetchThing(ctx *fiber.Ctx) error {
 
 func (app *application) RemoveThing(ctx *fiber.Ctx) error {
 	if err := app.Things.Remove(ctx.Params("id")); err != nil {
+		app.Logger.Error(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"status": "success", "message": "deleted"})

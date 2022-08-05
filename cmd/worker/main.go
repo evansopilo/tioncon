@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
+
 	"os"
 	"time"
 
 	"github.com/evansopilo/tioncon/database"
 	"github.com/evansopilo/tioncon/models"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -21,6 +22,8 @@ type application struct {
 }
 
 func main() {
+
+	logger := log.New().WithFields(log.Fields{})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -39,7 +42,7 @@ func main() {
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		log.Fatal(err)
 	}
-	app := &application{Things: database.NewThing(client.Database("tionicdb").Collection("things"))}
+	app := &application{Things: database.NewThing(client.Database("tionicdb").Collection("things"), logger)}
 
 	mqttAdaptor := mqtt.NewAdaptorWithAuth(os.Getenv("mqtt_host"), os.Getenv("mqtt_client"), os.Getenv("mqtt_username"), os.Getenv("mqtt_password"))
 

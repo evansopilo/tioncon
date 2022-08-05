@@ -6,6 +6,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.36.0
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
+	github.com/sirupsen/logrus v1.7.0
 	go.mongodb.org/mongo-driver v1.10.1
 	gobot.io/x/gobot v1.16.0
 )

@@ -3,8 +3,9 @@ package database
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/evansopilo/tioncon/models"
 
@@ -33,10 +34,13 @@ type IThing interface {
 }
 
 type Thing struct {
-	Col *mongo.Collection
+	Col    *mongo.Collection
+	Logger *log.Entry
 }
 
-func NewThing(col *mongo.Collection) *Thing { return &Thing{Col: col} }
+func NewThing(col *mongo.Collection, logger *log.Entry) *Thing {
+	return &Thing{Col: col, Logger: logger}
+}
 
 func (t Thing) Insert(thing models.IThing) error {
 
@@ -44,9 +48,10 @@ func (t Thing) Insert(thing models.IThing) error {
 	defer cancel()
 
 	if _, err := t.Col.InsertOne(ctx, thing); err != nil {
+		t.Logger.Error(err)
 		return ErrInsert
 	}
-
+	t.Logger.Infof("insert thing with id: %v", thing.GetThing().ID)
 	return nil
 }
 
@@ -58,6 +63,7 @@ func (t Thing) Read(id string) ([]models.IThing, error) {
 	filterCursor, err := t.Col.Find(ctx, bson.M{"_id": id})
 
 	if err != nil {
+		t.Logger.Error(err)
 		return nil, err
 	}
 
@@ -66,11 +72,12 @@ func (t Thing) Read(id string) ([]models.IThing, error) {
 	for filterCursor.Next(ctx) {
 		var thing models.IThing = models.NewThing()
 		if err := filterCursor.Decode(thing); err != nil {
+			t.Logger.Error(err)
 			return nil, err
 		}
 		things = append(things, thing)
 	}
-
+	t.Logger.Infof("read thing with id: %v", id)
 	return things, nil
 }
 
@@ -85,7 +92,7 @@ func (t Thing) Fetch(opts FetchOptions, page, limit int64) ([]models.Thing, erro
 
 	filterCursor, err := t.Col.Find(ctx, opts, options)
 	if err != nil {
-		log.Println(err)
+		t.Logger.Error(err)
 		return nil, ErrRead
 	}
 
@@ -94,11 +101,12 @@ func (t Thing) Fetch(opts FetchOptions, page, limit int64) ([]models.Thing, erro
 	for filterCursor.Next(ctx) {
 		var thing models.Thing
 		if err := filterCursor.Decode(&thing); err != nil {
-			log.Println(err)
+			t.Logger.Error(err)
 			return nil, ErrRead
 		}
 		things = append(things, thing)
 	}
+	t.Logger.Info("read thing at page: %v limit: %v", page, limit)
 	return things, nil
 }
 
@@ -108,8 +116,9 @@ func (t Thing) Remove(id string) error {
 	defer cancel()
 
 	if _, err := t.Col.DeleteOne(ctx, bson.M{"_id": id}); err != nil {
+		t.Logger.Error(err)
 		return ErrDelete
 	}
-
+	t.Logger.Infof("delete thing with id: %v", id)
 	return nil
 }
