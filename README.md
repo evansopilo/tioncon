@@ -12,10 +12,9 @@ Below are the features that the service provides.
 Trip historical data, that trip log data is stored in a Dataware house for future queries and analytics.
 3. Location detection, the location of an asset at a given time can be determined by querying the log data stored in the warehouse.
 Predictive analysis, data collected is used to perform predictive analysis for efficient future event planning.
-## Non-Functional Features
-1. Scalable, the service is built on a cloud-managed service to accommodate for spontaneous scale. A lightweight protocol(MQTT) is used to efficiently support data exchange between low-end systems.
-2. Low latency, data movement between different services ie. ETL pipelines for analytics are reduced by storing and analysing the data from the same place without moving it around.
-3. Security, token-based authorisation is utilised to control the devices sending messages to the service.
+4. Scalable, the service is built on a cloud-managed service to accommodate for spontaneous scale. A lightweight protocol(MQTT) is used to efficiently support data exchange between low-end systems.
+5. Low latency, data movement between different services ie. ETL pipelines for analytics are reduced by storing and analysing the data from the same place without moving it around.
+6. Security, token-based authorisation is utilised to control the devices sending messages to the service.
 
 ## Architectural Design ✒️
 This layer has the key components of the server-side applications for processing data from connected devices. This layer consists of the message brokers, consumers(handle data processing), producers and storage that meets system requirements.
