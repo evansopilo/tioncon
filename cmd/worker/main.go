@@ -9,6 +9,7 @@ import (
 
 	"github.com/evansopilo/tioncon/database"
 	"github.com/evansopilo/tioncon/models"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,12 +24,16 @@ type application struct {
 
 func main() {
 
+	if err := godotenv.Load(); err != nil {
+		log.Error(err)
+	}
+
 	logger := log.New().WithFields(log.Fields{})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongo_uri"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("mongo_uri")))
 	if err != nil {
 		log.Fatal(err)
 	}
